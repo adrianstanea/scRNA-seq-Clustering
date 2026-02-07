@@ -1,0 +1,28 @@
+services:
+  scrna-clustering:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: scrna-clustering:latest
+    container_name: scrna-clustering
+    volumes:
+      # Mount project directory
+      - .:/workspace
+      # Mount data directory (persistent)
+      - ./data:/workspace/data
+      # Mount results directory (persistent)
+      - ./data/results:/workspace/data/results
+    working_dir: /workspace
+    stdin_open: true
+    tty: true
+    # Resource limits (adjust based on your system)
+    deploy:
+      resources:
+        limits:
+          memory: 16G
+        reservations:
+          memory: 8G
+    environment:
+      - R_LIBS_USER=/usr/local/lib/R/site-library
+      - RENV_CONFIG_AUTOLOADER_ENABLED=FALSE
+    command: /bin/bash

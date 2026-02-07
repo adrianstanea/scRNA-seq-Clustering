@@ -1,0 +1,30 @@
+% =============================================================================
+% 06_conclusion.tex - Conclusion
+% =============================================================================
+
+\section{Conclusion}
+\label{sec:conclusion}
+
+This study presents a systematic comparison of three clustering approaches for single-cell RNA sequencing data: Seurat/Leiden graph-based clustering, SC3 consensus clustering, and recall FDR-controlled clustering. Our analysis of three benchmark datasets with known ground truth yields the following conclusions:
+
+\begin{enumerate}
+    \item \textbf{Leiden clustering remains competitive but requires resolution selection}: Standard Leiden clustering achieved the highest ARI across all datasets when the resolution parameter was appropriately tuned. However, the optimal resolution varied substantially across datasets (0.2 for scMixology and Zeisel, 1.0 for PBMC 3k), highlighting the challenge of parameter selection without ground truth.
+
+    \item \textbf{SC3 provides robust clustering for small datasets}: SC3's consensus approach achieved strong performance (ARI = 0.741) on the scMixology dataset, demonstrating the value of ensemble methods. However, its $O(n^2)$ memory complexity limits applicability to datasets with fewer than approximately 1,000 cells.
+
+    \item \textbf{recall provides statistical rigor at the cost of sensitivity}: The recall method's FDR control mechanism provides principled cluster validation, addressing the double-dipping problem that afflicts uncalibrated clustering. However, its conservative merging behavior may underestimate true cluster count in some biological contexts.
+
+    \item \textbf{Matching cluster count does not guarantee accuracy}: Our results demonstrate that producing the ``correct'' number of clusters does not ensure high clustering accuracy, particularly for datasets with hierarchical structure. Evaluation should focus on cell-level agreement (ARI, NMI) rather than cluster count alone.
+
+    \item \textbf{No single method dominates}: The optimal clustering approach depends on dataset characteristics, computational resources, and analytical goals. We provide guidelines to assist researchers in method selection.
+\end{enumerate}
+
+We recommend that researchers adopt a multi-method approach: use Leiden clustering at multiple resolutions for exploratory analysis, apply recall for statistical validation of cluster significance, and consider SC3 for small datasets where memory is not limiting. The field would benefit from continued development of methods that combine the scalability of graph-based approaches with the statistical rigor of calibration methods.
+
+\subsection*{Data Availability}
+
+All code, data processing scripts, and analysis pipelines are available at \url{https://github.com/adrianstanea/scRNA-seq-Clustering}. Processed datasets and clustering results are provided for reproducibility.
+
+\subsection*{Acknowledgments}
+
+We thank the developers of Seurat, SC3, and recall for making their methods freely available. We acknowledge the original authors of the benchmark datasets: Tian et al. for scMixology, 10x Genomics for PBMC 3k, and Zeisel et al. for the mouse brain dataset.

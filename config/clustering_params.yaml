@@ -1,0 +1,40 @@
+# Clustering Parameters for scRNA-seq Clustering Study
+
+# Baseline Leiden Clustering
+leiden:
+  resolutions: [0.2, 0.5, 0.8, 1.0, 1.5]
+  algorithm: "leiden"
+  n_iterations: -1  # Run until convergence
+
+# SC3 Parameters (Consensus Clustering)
+sc3:
+  k_range: null  # Auto-estimate if null
+  n_cores: 8
+  biology: true  # Compute DE genes and marker genes
+
+# recall Parameters (FDR-controlled clustering)
+recall:
+  dims: 30
+  algorithm: "louvain"
+  resolution_start: 0.8
+  num_clusters_start: 20
+  null_method: "ZIP"
+  n_cores: 4
+
+# Evaluation Metrics
+evaluation:
+  metrics:
+    - "ARI"      # Adjusted Rand Index
+    - "NMI"      # Normalized Mutual Information
+    - "Silhouette"
+    - "Homogeneity"
+    - "Completeness"
+
+# Output Settings
+output:
+  save_intermediate: true
+  figure_format: "pdf"
+  figure_dpi: 300
+
+# Reproducibility
+random_seed: 42

@@ -1,0 +1,52 @@
+% =============================================================================
+% main.tex - Master Document
+% scRNA-seq Clustering Comparative Study
+% =============================================================================
+
+\documentclass[11pt,a4paper]{article}
+
+\input{preamble}
+
+% Document metadata
+\title{A Comparative Study of Statistical Calibration Methods\\for Single-Cell RNA Sequencing Clustering}
+\author{
+    Stanea Adrian-Bogdan\\
+    \textit{Technical University of Cluj-Napoca}\\
+    \texttt{adrianstanea1@gmail.com}
+}
+\date{\today}
+
+% =============================================================================
+\begin{document}
+% =============================================================================
+
+\maketitle
+
+\newpage
+% Abstract
+\input{sections/00_abstract}
+
+\newpage
+% Table of contents (optional)
+\tableofcontents
+\newpage
+
+% Main sections
+\input{sections/01_introduction}
+\input{sections/02_background}
+\input{sections/03_methods}
+\input{sections/04_results}
+\input{sections/05_discussion}
+\input{sections/06_conclusion}
+
+
+\newpage
+% Bibliography
+\bibliographystyle{unsrtnat}
+\bibliography{bibliography/references}
+
+% % Appendix
+% \appendix
+% \input{sections/07_appendix}
+
+\end{document}

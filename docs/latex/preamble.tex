@@ -1,0 +1,87 @@
+% =============================================================================
+% preamble.tex - LaTeX Preamble for scRNA-seq Clustering Study
+% =============================================================================
+
+% Document setup
+\usepackage[utf8]{inputenc}
+\usepackage[T1]{fontenc}
+\usepackage[english]{babel}
+
+% Page geometry
+\usepackage[a4paper, margin=2.5cm]{geometry}
+
+% Headers and footers
+\usepackage{fancyhdr}
+\pagestyle{fancy}
+\fancyhf{} % Clear all headers and footers
+
+% Adjust header height and compensate top margin
+\setlength{\headheight}{32.54pt}
+\addtolength{\topmargin}{-20.54pt}
+
+% Add image to header (centered) - using width for better proportions
+\fancyhead[C]{\includegraphics[width=0.5\textwidth]{figures/logo.jpg}}
+% Adjust width as needed: 0.2\textwidth (narrow), 0.3\textwidth (medium), 0.4\textwidth (wide)
+
+% Add page numbers to footer
+\fancyfoot[C]{\thepage}
+
+% Customize header rule thickness
+\renewcommand{\headrulewidth}{0.4pt}
+
+% Math packages
+\usepackage{amsmath}
+\usepackage{amssymb}
+\usepackage{amsthm}
+
+% Graphics and figures
+\usepackage{graphicx}
+\usepackage{float}
+\usepackage{subcaption}
+
+% Tables
+\usepackage{booktabs}
+\usepackage{multirow}
+\usepackage{longtable}
+
+% Colors
+\usepackage{xcolor}
+\definecolor{codeblue}{RGB}{0, 102, 204}
+\definecolor{codegray}{RGB}{128, 128, 128}
+
+% Hyperlinks
+\usepackage[colorlinks=true, linkcolor=blue, citecolor=blue, urlcolor=codeblue]{hyperref}
+
+% Bibliography
+\usepackage[numbers,sort&compress]{natbib}
+
+% Code listings
+\usepackage{listings}
+\lstset{
+    basicstyle=\ttfamily\small,
+    keywordstyle=\color{codeblue},
+    commentstyle=\color{codegray},
+    breaklines=true,
+    frame=single,
+    numbers=left,
+    numberstyle=\tiny\color{codegray}
+}
+
+% Algorithms
+\usepackage{algorithm}
+\usepackage{algpseudocode}
+
+% Misc
+\usepackage{enumitem}
+\usepackage{url}
+\usepackage{microtype}
+
+% Custom commands
+\newcommand{\ari}{\text{ARI}}
+\newcommand{\nmi}{\text{NMI}}
+\newcommand{\fdp}{\text{FDP}}
+\newcommand{\fdr}{\text{FDR}}
+
+% Theorems and definitions
+\theoremstyle{definition}
+\newtheorem{definition}{Definition}[section]

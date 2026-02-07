@@ -1,0 +1,32 @@
+% =============================================================================
+% 01_introduction.tex - Introduction
+% =============================================================================
+
+\section{Introduction}
+\label{sec:introduction}
+
+\subsection{The Evolution of Cell Type Discovery}
+
+The identification of cell types from transcriptomic data has undergone significant evolution over the past decade. Early methods (2013--2016) relied on distance-based metrics and k-means clustering, which assumed spherical cluster shapes---an assumption rarely met in the complex, continuous manifolds of biological development~\cite{kiselev2019challenges}. Among these early methods, SC3 (Single-Cell Consensus Clustering) emerged as a notable approach, combining multiple k-means runs with spectral transformations to achieve robust consensus clustering~\cite{kiselev2017sc3}.
+
+The second generation of tools (2017--2022), typified by the Seurat~\cite{hao2021seurat} and Scanpy~\cite{wolf2018scanpy} ecosystems, adopted graph-based community detection. These methods construct a k-Nearest Neighbor (kNN) graph and partition it using modularity optimization algorithms like Louvain~\cite{blondel2008louvain} or Leiden~\cite{traag2019leiden}. While scalable, these methods are fundamentally heuristic. They do not ask \textit{if} a cluster is real; they ask \textit{how} to partition the graph based on a resolution parameter provided by the user.
+
+More recently, methods have emerged that aim to provide statistical calibration for clustering decisions. The recall method~\cite{denadel2024recall} introduces the knockoff framework from high-dimensional statistics to control false discovery rates in cluster identification, representing a principled approach to addressing the statistical challenges inherent in single-cell clustering.
+
+\subsection{The Reproducibility Crisis}
+
+A pervasive issue in current pipelines is the arbitrary nature of the resolution parameter in graph-based methods. If a user sets a high resolution, the algorithm will partition even homogeneous populations of cells into distinct clusters based on technical noise, leading to over-clustering. This problem is compounded by the lack of standardization across studies, where different laboratories use different resolution values, making results difficult to compare~\cite{xu2025scclubench}.
+
+\subsection{The ``Double-Dipping'' Fallacy}
+
+Researchers typically cluster their data and then perform differential expression (DE) analysis between the resulting clusters to identify marker genes. Because the clusters were defined by minimizing within-group variance and maximizing between-group variance using the same genes, the DE tests are biased to return significant p-values, even for random splits of the data. This ``double-dipping'' invalidates the statistical guarantees of the DE tests, leading to the publication of spurious cell states defined by noise-driven marker genes~\cite{denadel2024recall}.
+
+\subsection{Objectives}
+
+This study aims to:
+\begin{enumerate}[noitemsep]
+    \item Compare clustering methods with different theoretical foundations: graph-based community detection (Leiden), consensus clustering (SC3), and FDR-controlled clustering (recall)
+    \item Benchmark performance on datasets with known ground truth across varying complexity levels
+    \item Evaluate the trade-offs between accuracy, scalability, and statistical rigor
+    \item Provide actionable recommendations for method selection based on dataset characteristics
+\end{enumerate}

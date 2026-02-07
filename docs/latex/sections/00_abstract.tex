@@ -1,0 +1,16 @@
+% =============================================================================
+% 00_abstract.tex - Abstract
+% =============================================================================
+
+\begin{abstract}
+
+Single-cell RNA sequencing (scRNA-seq) has revolutionized our understanding of cellular heterogeneity, yet the identification of distinct cell populations through clustering remains a significant challenge. Current graph-based clustering methods, such as Leiden and Louvain, rely heavily on user-defined resolution parameters, leading to reproducibility issues and the risk of over-clustering or under-clustering. Additionally, the common practice of performing differential expression analysis on the same data used for clustering---known as ``double-dipping''---inflates false discovery rates and produces spurious cell type markers.
+
+In this study, we present a comparative analysis of clustering methods designed to address these limitations. We evaluate three approaches: (1) \textbf{Seurat/Leiden}, the standard graph-based community detection method at multiple resolution parameters; (2) \textbf{SC3} (Single-Cell Consensus Clustering), which employs an ensemble of k-means clusterings with spectral dimensionality reduction and automatic $k$ estimation; and (3) \textbf{recall}, which uses knockoff variables to control the false discovery rate during cluster calibration. We benchmark these methods on three datasets with known ground truth: scMixology (902 cells, 3 cell lines), PBMC 3k (2,643 cells, 9 cell types), and Zeisel mouse brain (680 cells, 7 neuronal classes).
+
+Our results demonstrate that Leiden clustering at low resolution (0.2) achieves the highest accuracy on the scMixology dataset (ARI = 0.856), followed by SC3 (ARI = 0.741) and recall (ARI = 0.680). On the more complex PBMC 3k dataset, Leiden at resolution 1.0 achieves ARI = 0.781, while recall maintains competitive performance (ARI = 0.649). SC3 encountered memory constraints on larger datasets, highlighting scalability considerations for consensus-based methods.
+
+\vspace{1em}
+\noindent\textbf{Keywords:} single-cell RNA-seq, clustering, SC3, recall, Leiden, knockoff variables, consensus clustering, reproducibility
+
+\end{abstract}

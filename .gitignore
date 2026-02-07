@@ -1,0 +1,77 @@
+# Data files (large, should not be committed)
+data/raw/
+data/processed/
+data/results/
+
+# R
+.Rproj.user/
+.Rhistory
+.RData
+.Ruserdata
+renv/library/
+renv/local/
+renv/cellar/
+renv/staging/
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+env/
+venv/
+.venv/
+*.egg-info/
+dist/
+build/
+.eggs/
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb_checkpoints
+
+# LaTeX
+*.aux
+*.bbl
+*.blg
+*.log
+*.out
+*.toc
+*.lof
+*.lot
+*.fls
+*.fdb_latexmk
+*.synctex.gz
+docs/latex/*.pdf
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Environment files with secrets
+.env
+*.env.local
+
+# Large model files
+*.h5
+*.h5ad
+*.rds
+*.RData
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Other
+.claude
+.serena
+certs

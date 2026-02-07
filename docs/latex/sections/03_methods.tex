@@ -1,0 +1,102 @@
+% =============================================================================
+% 03_methods.tex - Methods
+% =============================================================================
+
+\section{Methodology}
+\label{sec:methods}
+
+\subsection{Datasets}
+
+We evaluated clustering methods on three benchmark datasets representing different levels of biological complexity (Table~\ref{tab:datasets}).
+
+\begin{table}[htbp]
+\centering
+\caption{Benchmark datasets used in this study. Ground truth $K$ refers to the number of annotated cell populations at the primary annotation level.}
+\label{tab:datasets}
+\begin{tabular}{@{}lcccc@{}}
+\toprule
+\textbf{Dataset} & \textbf{Cells} & \textbf{Ground Truth K} & \textbf{Source} \\
+\midrule
+scMixology & 902 & 3 & Tian et al.~\cite{tian2019scmixology} \\
+PBMC 3k & 2,643 & 9 & 10x Genomics \\
+Zeisel Brain & 680 & 7 & Zeisel et al.~\cite{zeisel2015brain} \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\textbf{scMixology} consists of three human lung adenocarcinoma cell lines (HCC827, H1975, H2228) mixed in known proportions, providing absolute ground truth for cluster number validation. This dataset represents the simplest clustering scenario with well-separated populations.
+
+\textbf{PBMC 3k} contains peripheral blood mononuclear cells representing distinct immune cell types including T-cells (CD4+ and CD8+), B-cells, Monocytes (CD14+ and FCGR3A+), NK cells, and dendritic cells. This dataset serves as a community standard benchmark with moderate complexity.
+
+\textbf{Zeisel Brain} profiles mouse somatosensory cortex and hippocampus with seven major cell classes at the primary annotation level (level1): pyramidal neurons, interneurons, oligodendrocytes, astrocytes, microglia, endothelial cells, and ependymal cells. This dataset presents complex hierarchical structure with varying degrees of similarity between populations.
+
+\subsection{Preprocessing Pipeline}
+
+All datasets underwent standardized preprocessing using Seurat v5~\cite{hao2021seurat} to ensure fair comparison:
+
+\begin{enumerate}[noitemsep]
+    \item \textbf{Quality Control}: Filter cells with $<200$ or $>5000$ genes detected, and $>5\%$ mitochondrial reads
+    \item \textbf{Normalization}: Log-normalization with scale factor 10,000
+    \item \textbf{Feature Selection}: Top 2,000 highly variable genes using the variance-stabilizing transformation (VST) method
+    \item \textbf{Scaling}: Center and scale to unit variance
+    \item \textbf{Dimensionality Reduction}: Principal Component Analysis (PCA) retaining 30 components
+    \item \textbf{Graph Construction}: Shared nearest neighbor (SNN) graph with 20 nearest neighbors
+\end{enumerate}
+
+\subsection{Clustering Methods}
+
+\subsubsection{Baseline: Seurat/Leiden Clustering}
+
+Standard Leiden clustering~\cite{traag2019leiden} was performed using Seurat's \texttt{FindClusters} function at five resolution values: 0.2, 0.5, 0.8, 1.0, and 1.5. This range captures both under-clustering (low resolution) and over-clustering (high resolution) scenarios, demonstrating the sensitivity of results to this user-defined parameter.
+
+\subsubsection{SC3: Single-Cell Consensus Clustering}
+
+SC3~\cite{kiselev2017sc3} was run using the Bioconductor SC3 package with the following configuration:
+\begin{itemize}[noitemsep]
+    \item Automatic $k$ estimation using the Tracy-Widom test on the eigenvalues of the distance matrix
+    \item All three distance metrics (Euclidean, Pearson, Spearman) enabled
+    \item Both PCA and Laplacian transformations applied
+    \item Consensus clustering across all combinations
+\end{itemize}
+
+Due to the computational complexity of constructing the consensus matrix ($O(n^2)$ memory), SC3 was successfully applied only to the scMixology dataset. The PBMC 3k and Zeisel datasets exceeded available memory during consensus matrix construction.
+
+\subsubsection{recall: FDR-Controlled Clustering}
+
+The recall method~\cite{denadel2024recall} was run with the following parameters:
+\begin{itemize}[noitemsep]
+    \item FDR threshold: $q = 0.05$
+    \item Underlying clustering: Leiden algorithm
+    \item Dimensionality reduction: PCA (30 components)
+    \item Number of knockoffs: 1 per feature
+\end{itemize}
+
+recall was applied to all three datasets. Starting from an initial Leiden clustering, the method iteratively evaluates cluster pairs and merges those that cannot be distinguished at the specified FDR threshold.
+
+\subsection{Evaluation}
+
+Clustering performance was evaluated using the following metrics:
+\begin{itemize}[noitemsep]
+    \item \textbf{ARI} (Adjusted Rand Index): Primary accuracy metric correcting for chance agreement
+    \item \textbf{NMI} (Normalized Mutual Information): Information-theoretic measure of clustering quality
+    \item \textbf{Homogeneity}: Measures whether clusters contain only members of a single ground truth class
+    \item \textbf{Completeness}: Measures whether all members of a ground truth class are assigned to the same cluster
+    \item \textbf{Silhouette Score}: Internal cluster quality based on intra- and inter-cluster distances
+    \item \textbf{Overclustering Index}: $(K_{\text{predicted}} - K_{\text{true}}) / K_{\text{true}}$
+\end{itemize}
+
+\subsection{Technical Limitations}
+
+During the course of this study, we encountered several technical limitations:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{CHOIR unavailable}: The CHOIR method~\cite{sant2025choir} was initially planned for inclusion but could not be run due to dependency conflicts with treeio/yulab.utils packages in Bioconductor 3.19. These packages are required for CHOIR's hierarchical tree visualization.
+
+    \item \textbf{SC3 scalability}: SC3's consensus matrix construction requires $O(n^2)$ memory, limiting its applicability to datasets with fewer than approximately 1,000 cells on standard hardware (16 GB RAM).
+
+    \item \textbf{recall underclustering tendency}: The FDR control mechanism in recall can be conservative, potentially merging clusters that are biologically distinct but do not meet the statistical significance threshold.
+\end{itemize}
+
+\subsection{Reproducibility}
+
+All experiments used random seed 42 for reproducibility. The complete analysis pipeline, including preprocessing scripts and clustering implementations, is available at \url{https://github.com/adrianstanea/scRNA-seq-Clustering}. Environment specifications including R and Python package versions are provided in the supplementary materials.

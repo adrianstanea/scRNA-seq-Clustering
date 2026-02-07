@@ -1,0 +1,42 @@
+% =============================================================================
+% 05_discussion.tex - Discussion
+% =============================================================================
+
+\section{Discussion}
+\label{sec:discussion}
+
+\subsection{Key Findings}
+
+Our comparative analysis of three clustering approaches---Seurat/Leiden, SC3, and recall---reveals several important insights for the scRNA-seq community:
+
+\begin{enumerate}
+    \item \textbf{No single method dominates across all datasets}: Leiden clustering achieved the best ARI on all three datasets, but the optimal resolution varied substantially (0.2 for scMixology and Zeisel, 1.0 for PBMC 3k). This underscores the fundamental challenge of resolution selection in graph-based clustering.
+
+    \item \textbf{Optimal resolution correlates with dataset complexity}: Simpler datasets with well-separated populations (scMixology) perform best at low resolution, while complex datasets with many similar populations (PBMC 3k) require higher resolution to distinguish subtypes.
+
+    \item \textbf{Consensus clustering provides stability but not scalability}: SC3 achieved competitive accuracy (ARI = 0.741) on scMixology through its ensemble approach, but memory constraints prevented application to larger datasets. This represents a significant limitation for modern single-cell experiments that routinely generate tens of thousands of cells.
+
+    \item \textbf{FDR control may be overly conservative}: recall's knockoff-based approach consistently underestimated cluster count relative to ground truth, suggesting that the FDR threshold (q = 0.05) may be too stringent for some biological applications. Adjusting this threshold could improve sensitivity at the cost of potentially increased false discoveries.
+\end{enumerate}
+
+\subsection{Resolution Selection Paradox}
+
+A striking finding from this study is that matching the ground truth cluster count does not guarantee high clustering accuracy. On the Zeisel dataset, Leiden at resolution 0.8 produced exactly seven clusters (matching the ground truth), yet achieved only ARI = 0.425. In contrast, resolution 0.2 produced only four clusters but achieved ARI = 0.797.
+
+This paradox arises because ARI measures the agreement of pairwise cell assignments, not cluster count. A clustering that correctly groups cells into four coarse categories can achieve higher ARI than one that attempts seven categories but assigns many cells incorrectly. This finding has implications for how researchers should interpret ground truth annotations---particularly for datasets with hierarchical structure, the ``correct'' number of clusters may be ambiguous.
+
+\subsection{Future Directions}
+
+Several promising directions emerge from this work:
+
+\begin{itemize}[noitemsep]
+    \item \textbf{Adaptive FDR thresholds}: Developing methods to select appropriate FDR thresholds based on dataset characteristics could improve recall's sensitivity
+
+    \item \textbf{Scalable consensus clustering}: Memory-efficient implementations of SC3 or alternative consensus approaches could extend its applicability to larger datasets
+
+    \item \textbf{Integration with foundation models}: Pre-trained embeddings from models like scGPT or GeneCompass may provide more informative representations for clustering
+
+    \item \textbf{Multi-resolution integration}: Methods that combine information across multiple resolution scales could provide more robust clustering without requiring resolution selection
+
+    \item \textbf{Benchmarking on additional datasets}: Extending this comparison to additional datasets with different characteristics (e.g., developmental trajectories, disease states) would strengthen the generalizability of our recommendations
+\end{itemize}

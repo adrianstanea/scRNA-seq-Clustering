@@ -1,0 +1,32 @@
+# Preprocessing Parameters for scRNA-seq Clustering Study
+# These parameters ensure reproducibility across all methods
+
+# Quality Control
+qc:
+  min_genes_per_cell: 200
+  max_genes_per_cell: 5000
+  max_pct_mt: 5.0
+  min_cells_per_gene: 3
+
+# Normalization
+normalization:
+  method: "LogNormalize"
+  scale_factor: 10000
+
+# Feature Selection
+feature_selection:
+  method: "vst"
+  n_top_genes: 2000
+
+# Dimensionality Reduction
+dimensionality_reduction:
+  n_pcs: 30
+  n_neighbors: 15
+
+# Graph Construction
+graph:
+  n_neighbors: 15
+  metric: "cosine"
+
+# Reproducibility
+random_seed: 42

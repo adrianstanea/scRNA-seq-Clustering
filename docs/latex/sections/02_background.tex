@@ -1,0 +1,128 @@
+% =============================================================================
+% 02_background.tex - Background
+% =============================================================================
+
+\section{Background}
+\label{sec:background}
+
+\subsection{Graph-Based Clustering Fundamentals}
+
+Modern scRNA-seq clustering pipelines construct a k-Nearest Neighbor (kNN) graph where each cell is a node connected to its $k$ most similar neighbors in a reduced-dimensional space (typically PCA). The Leiden algorithm~\cite{traag2019leiden} partitions this graph by optimizing the modularity function:
+
+\begin{equation}
+    Q = \frac{1}{2m}\sum_{ij}\left[A_{ij} - \gamma\frac{k_i k_j}{2m}\right]\delta(c_i, c_j)
+    \label{eq:modularity}
+\end{equation}
+
+where $A_{ij}$ is the adjacency matrix, $k_i$ and $k_j$ are node degrees, $m$ is the total number of edges, $\gamma$ is the resolution parameter, and $\delta(c_i, c_j)$ equals 1 if nodes $i$ and $j$ are in the same cluster.
+
+The resolution parameter $\gamma$ directly controls cluster granularity: higher values produce more clusters, while lower values produce fewer, larger clusters. This parameter has no biological interpretation and must be chosen subjectively, representing a fundamental limitation of graph-based approaches.
+
+\subsection{Consensus Clustering Methods}
+
+\subsubsection{SC3: Single-Cell Consensus Clustering}
+
+SC3 (Single-Cell Consensus Clustering)~\cite{kiselev2017sc3} addresses the instability of single clustering runs through an ensemble approach. The algorithm combines multiple k-means clusterings performed on different representations of the data to achieve robust cluster assignments.
+
+The algorithm operates as follows:
+\begin{enumerate}[noitemsep]
+    \item \textbf{Distance calculation}: Compute cell-to-cell distances using Euclidean, Pearson, and Spearman metrics
+    \item \textbf{Transformation}: Apply PCA and Laplacian (graph) transformations to create multiple data representations
+    \item \textbf{k-means clustering}: Perform k-means on each transformed dataset for each value of $k$ in a specified range
+    \item \textbf{Consensus matrix}: Aggregate clustering results into a consensus matrix $M$ where $M_{ij}$ represents the proportion of clusterings in which cells $i$ and $j$ were assigned to the same cluster
+    \item \textbf{Hierarchical clustering}: Apply hierarchical clustering to the consensus matrix to obtain final cluster assignments
+\end{enumerate}
+
+\begin{algorithm}[htbp]
+\caption{SC3: Single-Cell Consensus Clustering}
+\label{alg:sc3}
+\begin{algorithmic}[1]
+\Require Data matrix $X$, range of $k$ values $[k_{\min}, k_{\max}]$
+\Ensure Consensus cluster assignments $C$
+\State $D_{\text{euc}}, D_{\text{pear}}, D_{\text{spear}} \gets \text{ComputeDistances}(X)$ \Comment{Multiple distance metrics}
+\For{each distance matrix $D$}
+    \State $X_{\text{pca}} \gets \text{PCA}(D)$
+    \State $X_{\text{lap}} \gets \text{LaplacianEigenmaps}(D)$
+    \For{$k = k_{\min}$ to $k_{\max}$}
+        \State $C_k^{\text{pca}} \gets \text{KMeans}(X_{\text{pca}}, k)$
+        \State $C_k^{\text{lap}} \gets \text{KMeans}(X_{\text{lap}}, k)$
+    \EndFor
+\EndFor
+\State $M \gets \text{ConsensusMatrix}(\{C_k\})$ \Comment{Aggregate all clusterings}
+\State $C \gets \text{HierarchicalClustering}(M)$
+\State \Return $C$
+\end{algorithmic}
+\end{algorithm}
+
+SC3 includes a built-in method for estimating the optimal number of clusters based on the Tracy-Widom distribution of eigenvalues, providing a data-driven approach to $k$ selection~\cite{kiselev2017sc3}.
+
+\subsection{Statistical Calibration Methods}
+
+\subsubsection{recall: Knockoff-Based FDR Control}
+
+The recall method~\cite{denadel2024recall} introduces the knockoff framework from high-dimensional statistics to single-cell analysis. For every gene $X_j$ in the dataset, recall generates a knockoff variable $\tilde{X}_j$ that preserves the correlation structure but is conditionally independent of the true cell type labels.
+
+The False Discovery Proportion is estimated as:
+
+\begin{equation}
+    \widehat{\text{FDP}}(t) = \frac{|\{j: \tilde{W}_j \leq -t\}|}{|\{j: W_j \geq t\}| \vee 1}
+    \label{eq:fdp}
+\end{equation}
+
+where $W_j$ represents the importance statistic for each feature, computed as the difference between the importance of the original feature and its knockoff. Clusters are iteratively merged until the estimated FDR falls below a user-defined threshold (typically 0.05).
+
+\begin{algorithm}[htbp]
+\caption{recall: Knockoff-Based Cluster Calibration}
+\label{alg:recall}
+\begin{algorithmic}[1]
+\Require Data matrix $X$, FDR threshold $q$, initial clusters $C_0$
+\Ensure FDR-controlled cluster assignments $C$
+\State $C \gets C_0$ \Comment{Start from initial clustering}
+\While{$|C| > 1$}
+    \For{each pair of clusters $(c_i, c_j) \in C$}
+        \State Generate knockoff features $\tilde{X}$ for cells in $c_i \cup c_j$
+        \State Compute feature importance $W_j = |Z_j| - |\tilde{Z}_j|$ for all genes
+        \State $t^* \gets \min\left\{t : \frac{1 + |\{j: W_j \leq -t\}|}{|\{j: W_j \geq t\}| \vee 1} \leq q\right\}$
+        \State $S_{ij} \gets |\{j : W_j \geq t^*\}|$ \Comment{Number of significant features}
+    \EndFor
+    \If{$\max_{i,j} S_{ij} = 0$}
+        \State Merge most similar pair $(c_i, c_j)$ into single cluster
+    \Else
+        \State \textbf{break} \Comment{All remaining splits are significant}
+    \EndIf
+\EndWhile
+\State \Return $C$
+\end{algorithmic}
+\end{algorithm}
+
+\subsection{Evaluation Metrics}
+
+\subsubsection{Adjusted Rand Index (ARI)}
+
+The Adjusted Rand Index measures clustering accuracy against ground truth labels, correcting for chance agreement:
+
+\begin{equation}
+    \text{ARI} = \frac{\text{RI} - E[\text{RI}]}{\max(\text{RI}) - E[\text{RI}]}
+\end{equation}
+
+Values range from $-0.5$ to $1.0$, where $1.0$ indicates perfect agreement and $0$ indicates random assignment.
+
+\subsubsection{Normalized Mutual Information (NMI)}
+
+NMI quantifies the information shared between predicted and true labels:
+
+\begin{equation}
+    \text{NMI}(U, V) = \frac{2 \cdot I(U; V)}{H(U) + H(V)}
+\end{equation}
+
+where $I(U; V)$ is mutual information and $H(\cdot)$ is entropy. NMI ranges from $0$ to $1$, with higher values indicating better agreement.
+
+\subsubsection{Overclustering Index}
+
+The Overclustering Index (OCI) quantifies the degree of over- or under-clustering:
+
+\begin{equation}
+    \text{OCI} = \frac{K_{\text{predicted}} - K_{\text{true}}}{K_{\text{true}}}
+\end{equation}
+
+Positive values indicate overclustering (too many clusters identified), while negative values indicate underclustering. An OCI of zero indicates exact agreement with the ground truth cluster count.
